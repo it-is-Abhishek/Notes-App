@@ -25,8 +25,6 @@ export default function HomeScreen( {navigation} ) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: 20,
     backgroundColor: '#fff',
   },
@@ -39,12 +37,13 @@ const styles = StyleSheet.create({
   categoryButton: {
     padding: 15,
     marginVertical: 10,
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#e59f9fff',
     borderRadius: 10,
     alignItems: 'center',
   },
   categoryText: {
-    fontSize: 18,
+    fontSize: 25,
     color: '#fff',
+    fontWeight: "bold"
   }
 });

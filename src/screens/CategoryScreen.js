@@ -1,18 +1,25 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useContext } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { NotesContext } from '../contexts/NotesContext';
 
-export default function CategoryScreen() {
+export default function CategoryScreen({ route, navigation }) {
+  const { category } = route.params;
+  const { notes } = useContext(NotesContext);
+
+  const categoryNotes = notes.filter((note) => note.category === category);
+
   return (
-    <View style={styles.container}>
-      <Text>Home Screen</Text>
+    <View>
+      <Text>This is CategoryScreen</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
+  container:{
+    flex:1,
+    padding:10,
+
+  }
+})
+
