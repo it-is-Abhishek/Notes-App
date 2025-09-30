@@ -1,10 +1,15 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 
-export default function HomeScreen() {
+export default function HomeScreen( {navigation} ) {
+
+  const categories = ['Work', 'Study', 'Personal']
+
+
   return (
     <View style={styles.container}>
       <Text>Home Screen</Text>
+      {categories.map((category) => )}
     </View>
   );
 }
