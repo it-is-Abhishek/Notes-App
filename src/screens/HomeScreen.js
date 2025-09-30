@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 
 export default function HomeScreen( {navigation} ) {
 
-  const categories = ['   Work   ', '   Study   ', ' Personal ']
+  const categories = ['Work', 'Study', 'Personal']
 
 
   return (
