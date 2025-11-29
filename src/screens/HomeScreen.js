@@ -9,10 +9,12 @@ import {
   Easing,
 } from "react-native";
 import { NotesContext } from "../contexts/NotesContext";
+import { AuthContext } from "../contexts/AuthContext";
 import { MaterialIcons } from "@expo/vector-icons";
 
 export default function HomeScreen({ navigation }) {
   const { notes } = useContext(NotesContext);
+  const { user, logout } = useContext(AuthContext);
   const [search, setSearch] = useState("");
 
 
@@ -77,7 +79,7 @@ export default function HomeScreen({ navigation }) {
           ],
         }}
       >
-        <Text style={styles.header}>Abhishek's Notes 🧠</Text>
+        <Text style={styles.header}>{user?.name}'s Notes 🧠</Text>
       </Animated.View>
 
 
@@ -140,7 +142,7 @@ export default function HomeScreen({ navigation }) {
               <TouchableOpacity
                 key={note.id}
                 style={styles.resultCard}
-                onPress={() => navigation.navigate("NoteDetails", { note })}
+                onPress={() => navigation.navigate("NoteDetails", { editNote: note })}
               >
                 <Text style={styles.cardTitle}>{note.title}</Text>
                 <Text numberOfLines={1} style={styles.cardContent}>
@@ -184,6 +186,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   header: { fontSize: 26, fontWeight: "800", marginBottom: 16 },
+  logoutBtn: { position: "absolute", top: 0, right: 0 },
   searchBar: {
     flexDirection: "row",
     backgroundColor: "#f4f4f4",

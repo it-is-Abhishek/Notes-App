@@ -1,36 +1,55 @@
+
 import React, { createContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+
 export const NotesContext = createContext();
 
+
 export const NotesProvider = ({ children }) => {
+
   const [notes, setNotes] = useState([]);
 
-  // Load notes on app start
+
   useEffect(() => {
     const loadNotes = async () => {
-      const stored = await AsyncStorage.getItem("NOTES_APP_DATA");
-      if (stored) setNotes(JSON.parse(stored));
+      try {
+        const storedNotes = await AsyncStorage.getItem("NOTES_APP_DATA");
+        if (storedNotes) {
+          setNotes(JSON.parse(storedNotes));
+        }
+      } catch (error) {
+        console.error('Error loading notes:', error);
+      }
     };
     loadNotes();
   }, []);
 
-  // Save notes whenever updated
+
   useEffect(() => {
-    AsyncStorage.setItem("NOTES_APP_DATA", JSON.stringify(notes));
+    const saveNotes = async () => {
+      try {
+        await AsyncStorage.setItem("NOTES_APP_DATA", JSON.stringify(notes));
+      } catch (error) {
+        console.error('Error saving notes:', error);
+      }
+    };
+    saveNotes();
   }, [notes]);
 
+
   const addNote = (note) => {
-    setNotes(prev => [...prev, note]);
+    setNotes(prevNotes => [...prevNotes, note]);
   };
 
   const updateNote = (id, updatedNote) => {
-    setNotes(prev => prev.map(n => n.id === id ? updatedNote : n));
+    setNotes(prevNotes => prevNotes.map(note => note.id === id ? updatedNote : note));
   };
 
   const deleteNote = (id) => {
-    setNotes(prev => prev.filter(n => n.id !== id));
+    setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
   };
+
 
   return (
     <NotesContext.Provider value={{ notes, addNote, updateNote, deleteNote }}>

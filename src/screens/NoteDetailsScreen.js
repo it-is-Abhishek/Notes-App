@@ -1,99 +1,95 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, Button, StyleSheet, Alert } from 'react-native';
 import { Audio } from 'expo-av';
 import { NotesContext } from '../contexts/NotesContext';
 
-export default function AddNoteScreen({ navigation, route }) {
-  const { addNote, updateNote } = useContext(NotesContext);
+export default function NoteDetailsScreen({ navigation, route }) {
+  const { deleteNote } = useContext(NotesContext);
 
-  const editNote = route.params?.editNote;
-  const category = route.params?.category || editNote?.category || null;
+  const note = route.params?.note;
 
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [recording, setRecording] = useState(null);
-  const [audioUri, setAudioUri] = useState(null);
+  const [sound, setSound] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
-    if (editNote) {
-      setTitle(editNote.title);
-      setContent(editNote.content);
-      setAudioUri(editNote.audioUri || null);
-    }
-  }, []);
+    return sound ? () => sound.unloadAsync() : undefined;
+  }, [sound]);
 
-  const startRecording = async () => {
-    const perm = await Audio.requestPermissionsAsync();
-    if (!perm.granted) {
-      Alert.alert("Permission needed!", "Allow mic access 🎤");
-      return;
-    }
+  const playAudio = async () => {
+    if (!note.audioUri) return;
 
-    const rec = new Audio.Recording();
-    await rec.prepareToRecordAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
-    await rec.startAsync();
-    setRecording(rec);
+    const { sound: newSound } = await Audio.Sound.createAsync({ uri: note.audioUri });
+    setSound(newSound);
+    setIsPlaying(true);
+    await newSound.playAsync();
+    newSound.setOnPlaybackStatusUpdate((status) => {
+      if (status.didJustFinish) {
+        setIsPlaying(false);
+      }
+    });
   };
 
-  const stopRecording = async () => {
-    await recording.stopAndUnloadAsync();
-    setAudioUri(recording.getURI());
-    setRecording(null);
-  };
-
-  const handleSave = () => {
-    if (!title.trim() && !audioUri) {
-      Alert.alert("Wait!", "Add title or record voice!");
-      return;
+  const stopAudio = async () => {
+    if (sound) {
+      await sound.stopAsync();
+      setIsPlaying(false);
     }
-
-    const noteObj = {
-      id: editNote ? editNote.id : Date.now(),
-      title: title.trim() || "🎙️ Voice Note",
-      content,
-      category,
-      audioUri,
-    };
-
-    if (editNote) updateNote(editNote.id, noteObj);
-    else addNote(noteObj);
-
-    navigation.goBack();
   };
+
+  const handleEdit = () => {
+    navigation.navigate('AddNote', { editNote: note });
+  };
+
+  const handleDelete = () => {
+    Alert.alert(
+      "Delete Note",
+      "Are you sure you want to delete this note?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Delete", onPress: () => { deleteNote(note.id); navigation.goBack(); } }
+      ]
+    );
+  };
+
+  if (!note) {
+    return (
+      <View style={styles.container}>
+        <Text>Note not found.</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <TextInput
-        placeholder="Title (optional if voice)"
-        value={title}
-        onChangeText={setTitle}
-        style={styles.input}
-      />
+      <Text style={styles.title}>{note.title}</Text>
 
-      <TextInput
-        placeholder="Write something..."
-        value={content}
-        onChangeText={setContent}
-        style={[styles.input, {height: 80}]}
-        multiline
-      />
+      {note.content ? (
+        <Text style={styles.content}>{note.content}</Text>
+      ) : null}
 
-      <View style={{marginVertical: 10}}>
-        {recording ? (
-          <Button title="⏹ Stop Recording" onPress={stopRecording} />
-        ) : (
-          <Button title="🎙 Record Voice Note" onPress={startRecording} />
-        )}
+      {note.audioUri ? (
+        <View style={styles.audioSection}>
+          <Text style={styles.audioText}>🎙️ Voice Note</Text>
+          <Button
+            title={isPlaying ? "⏹ Stop" : "▶️ Play"}
+            onPress={isPlaying ? stopAudio : playAudio}
+          />
+        </View>
+      ) : null}
+
+      <View style={styles.buttonContainer}>
+        <Button title="✏️ Edit" onPress={handleEdit} />
+        <Button title="🗑️ Delete" onPress={handleDelete} color="red" />
       </View>
-
-      {audioUri && <Text style={{textAlign: "center", color: "green"}}>✅ Voice added!</Text>}
-
-      <Button title="💾 Save Note" onPress={handleSave} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: "#fff" },
-  input: { borderWidth: 1, borderColor: "#ccc", padding: 10, borderRadius: 6, marginBottom: 10 }
+  title: { fontSize: 24, fontWeight: "bold", marginBottom: 16 },
+  content: { fontSize: 16, marginBottom: 20 },
+  audioSection: { marginVertical: 20, alignItems: "center" },
+  audioText: { fontSize: 18, marginBottom: 10 },
+  buttonContainer: { flexDirection: "row", justifyContent: "space-around", marginTop: 20 }
 });
