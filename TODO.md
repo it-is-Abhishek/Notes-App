@@ -9,9 +9,9 @@
 - [x] Store user data in AsyncStorage
 
 ## Pending Tasks
-- [ ] Test login/signup flow
-- [ ] Test navigation and data persistence
-- [ ] Ensure unauthenticated users see login/signup screens
-- [ ] Ensure authenticated users can access notes
-- [ ] Add loading screen for auth state check
+- [x] Test login/signup flow
+- [x] Test navigation and data persistence
+- [x] Ensure unauthenticated users see login/signup screens
+- [x] Ensure authenticated users can access notes
+- [x] Add loading screen for auth state check
 - [ ] Improve error handling in auth screens

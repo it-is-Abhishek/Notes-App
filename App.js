@@ -10,6 +10,8 @@ import AddNoteScreen from './src/screens/AddNoteScreen';
 import NoteDetailsScreen from './src/screens/NoteDetailsScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import SignupScreen from './src/screens/SignupScreen';
+import CategoryManagementScreen from './src/screens/CategoryManagementScreen';
+import LoadingScreen from './src/components/LoadingScreen';
 
 import { NotesProvider } from './src/contexts/NotesContext';
 import { AuthProvider, AuthContext } from './src/contexts/AuthContext';

@@ -13,7 +13,7 @@ import { AuthContext } from "../contexts/AuthContext";
 import { MaterialIcons } from "@expo/vector-icons";
 
 export default function HomeScreen({ navigation }) {
-  const { notes } = useContext(NotesContext);
+  const { notes, categories } = useContext(NotesContext);
   const { user, logout } = useContext(AuthContext);
   const [search, setSearch] = useState("");
 
@@ -156,6 +156,13 @@ export default function HomeScreen({ navigation }) {
 
 
       <TouchableOpacity
+        style={styles.manageBtn}
+        onPress={() => navigation.navigate("CategoryManagement")}
+      >
+        <MaterialIcons name="settings" size={26} color="#fff" />
+      </TouchableOpacity>
+
+      <TouchableOpacity
         style={styles.addBtn}
         onPress={() => navigation.navigate("AddNote")}
       >
@@ -167,7 +174,7 @@ export default function HomeScreen({ navigation }) {
         style={styles.micBtn}
         onPress={() =>
           navigation.navigate("AddNote", {
-            category: "Personal",
+            category: categories.length > 0 ? categories[0] : "Personal",
             voiceMode: true,
           })
         }
@@ -249,6 +256,18 @@ const styles = StyleSheet.create({
     width: 56,
     borderRadius: 28,
     backgroundColor: "#00b894",
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 5,
+  },
+  manageBtn: {
+    position: "absolute",
+    bottom: 100,
+    left: 30,
+    height: 56,
+    width: 56,
+    borderRadius: 28,
+    backgroundColor: "#6c5ce7",
     justifyContent: "center",
     alignItems: "center",
     elevation: 5,

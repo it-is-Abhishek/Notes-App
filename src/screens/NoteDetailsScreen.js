@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, Alert } from 'react-native';
-import { Audio } from 'expo-av';
+import { Audio } from 'expo-audio';
 import { NotesContext } from '../contexts/NotesContext';
 
 export default function NoteDetailsScreen({ navigation, route }) {
