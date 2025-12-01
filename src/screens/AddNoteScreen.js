@@ -7,18 +7,20 @@ export default function AddNoteScreen({ navigation, route }) {
   const { addNote, updateNote, categories } = useContext(NotesContext);
 
   const editNote = route.params?.editNote;
-  const category = route.params?.category || editNote?.category || (categories.length > 0 ? categories[0] : null);
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [recording, setRecording] = useState(null);
   const [audioUri, setAudioUri] = useState(null);
+  const [imageUri, setImageUri] = useState(null);
+  const [category, setCategory] = useState(route.params?.category || editNote?.category || (categories.length > 0 ? categories[0] : null));
 
   useEffect(() => {
     if (editNote) {
       setTitle(editNote.title);
       setContent(editNote.content);
       setAudioUri(editNote.audioUri || null);
+      setImageUri(editNote.imageUri || null);
     }
   }, []);
 
@@ -41,18 +43,56 @@ export default function AddNoteScreen({ navigation, route }) {
     setRecording(null);
   };
 
+  const pickImage = async () => {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert("Permission needed!", "Allow access to photos 📸");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImageUri(result.assets[0].uri);
+    }
+  };
+
+  const takePhoto = async () => {
+    const perm = await ImagePicker.requestCameraPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert("Permission needed!", "Allow camera access 📷");
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImageUri(result.assets[0].uri);
+    }
+  };
+
   const handleSave = () => {
-    if (!title.trim() && !audioUri) {
-      Alert.alert("Wait!", "Add title or record voice!");
+    if (!title.trim() && !audioUri && !imageUri) {
+      Alert.alert("Wait!", "Add title, record voice, or take a photo!");
       return;
     }
 
     const noteObj = {
       id: editNote ? editNote.id : Date.now(),
-      title: title.trim() || "🎙️ Voice Note",
+      title: title.trim() || (audioUri ? "🎙️ Voice Note" : "📷 Photo Note"),
       content,
       category,
       audioUri,
+      imageUri,
     };
 
     if (editNote) updateNote(editNote.id, noteObj);
@@ -102,16 +142,45 @@ export default function AddNoteScreen({ navigation, route }) {
       </View>
 
       <View style={{marginVertical: 10}}>
-        {recording ? (
-          <Button title="⏹ Stop Recording" onPress={stopRecording} />
-        ) : (
-          <Button title="🎙 Record Voice Note" onPress={startRecording} />
-        )}
+        <TouchableOpacity
+          style={[styles.actionButton, recording && styles.recordingButton]}
+          onPress={recording ? stopRecording : startRecording}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.buttonText, recording && styles.recordingText]}>
+            {recording ? "⏹ Stop Recording" : "🎙 Record Voice Note"}
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {audioUri && <Text style={{textAlign: "center", color: "green"}}>✅ Voice added!</Text>}
 
-      <Button title="💾 Save Note" onPress={handleSave} />
+      <View style={{marginVertical: 10, flexDirection: 'row', justifyContent: 'space-around'}}>
+        <TouchableOpacity
+          style={styles.mediaButton}
+          onPress={takePhoto}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.mediaButtonText}>📷 Take Photo</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.mediaButton}
+          onPress={pickImage}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.mediaButtonText}>🖼️ Pick from Gallery</Text>
+        </TouchableOpacity>
+      </View>
+
+      {imageUri && <Text style={{textAlign: "center", color: "green"}}>✅ Image added!</Text>}
+
+      <TouchableOpacity
+        style={styles.saveButton}
+        onPress={handleSave}
+        activeOpacity={0.7}
+      >
+        <Text style={styles.saveButtonText}>💾 Save Note</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -124,5 +193,64 @@ const styles = StyleSheet.create({
   categoryBtn: { padding: 10, borderWidth: 1, borderColor: "#ccc", borderRadius: 6, marginRight: 10, marginBottom: 5 },
   categoryBtnSelected: { backgroundColor: "#007bff", borderColor: "#007bff" },
   categoryText: { fontSize: 16 },
-  categoryTextSelected: { color: "#fff" }
+  categoryTextSelected: { color: "#fff" },
+  actionButton: {
+    backgroundColor: "#28a745",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5,
+  },
+  recordingButton: {
+    backgroundColor: "#dc3545",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  recordingText: {
+    color: "#fff",
+  },
+  mediaButton: {
+    backgroundColor: "#17a2b8",
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5,
+    minWidth: 120,
+  },
+  mediaButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  saveButton: {
+    backgroundColor: "#007bff",
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 30,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5,
+    marginTop: 20,
+  },
+  saveButtonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
 });

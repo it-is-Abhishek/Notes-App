@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, Button, StyleSheet, Alert, Image } from 'react-native';
 import { Audio } from 'expo-audio';
 import { NotesContext } from '../contexts/NotesContext';
 
@@ -89,7 +89,9 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: "#fff" },
   title: { fontSize: 24, fontWeight: "bold", marginBottom: 16 },
   content: { fontSize: 16, marginBottom: 20 },
+  imageSection: { marginVertical: 20, alignItems: "center" },
+  image: { width: 300, height: 200, borderRadius: 10 },
   audioSection: { marginVertical: 20, alignItems: "center" },
   audioText: { fontSize: 18, marginBottom: 10 },
-  buttonContainer: { flexDirection: "row", justifyContent: "space-around", marginTop: 20 }
+  buttonContainer: { flexDirection: "row", justifyContent: "space-around", position: "absolute", bottom: 20, left: 20, right: 20 }
 });
