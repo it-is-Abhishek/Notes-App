@@ -6,7 +6,7 @@ import { NotesContext } from '../contexts/NotesContext';
 export default function NoteDetailsScreen({ navigation, route }) {
   const { deleteNote } = useContext(NotesContext);
 
-  const note = route.params?.note;
+  const note = route.params?.note || route.params?.editNote;
 
   const [sound, setSound] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -65,6 +65,12 @@ export default function NoteDetailsScreen({ navigation, route }) {
 
       {note.content ? (
         <Text style={styles.content}>{note.content}</Text>
+      ) : null}
+
+      {note.imageUri ? (
+        <View style={styles.imageSection}>
+          <Image source={{ uri: note.imageUri }} style={styles.image} />
+        </View>
       ) : null}
 
       {note.audioUri ? (

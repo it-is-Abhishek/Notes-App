@@ -1,6 +1,8 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
-import { Audio } from 'expo-audio';
+import { Audio } from 'expo-av';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 import { NotesContext } from '../contexts/NotesContext';
 
 export default function AddNoteScreen({ navigation, route }) {
@@ -58,7 +60,14 @@ export default function AddNoteScreen({ navigation, route }) {
     });
 
     if (!result.canceled) {
-      setImageUri(result.assets[0].uri);
+      const uri = result.assets[0].uri;
+      const fileName = uri.split('/').pop();
+      const newUri = FileSystem.documentDirectory + fileName;
+      await FileSystem.copyAsync({
+        from: uri,
+        to: newUri,
+      });
+      setImageUri(newUri);
     }
   };
 
@@ -76,7 +85,14 @@ export default function AddNoteScreen({ navigation, route }) {
     });
 
     if (!result.canceled) {
-      setImageUri(result.assets[0].uri);
+      const uri = result.assets[0].uri;
+      const fileName = uri.split('/').pop();
+      const newUri = FileSystem.documentDirectory + fileName;
+      await FileSystem.moveAsync({
+        from: uri,
+        to: newUri,
+      });
+      setImageUri(newUri);
     }
   };
 
